@@ -23,22 +23,15 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import $ from 'jquery'
 import axios from 'axios';
 let rows=[];
+
 $( document ).ready(function() {
   axios("https://mddev.mdcms.ch/mdrstt82/mdrfields?library=mdrdemod&file=custs")
   .then(response => {
-    console.log('HER EIS THE RES',response.data);
     rows=response.data;
   })
-  // getRows().then(rows1=>{
-  //   rows=rows1;
-  //   console.log('rows===>',rows)}) ;
 
 });
-// function createData(arr) {
-//   let name=arr[0];
-//   let projectName=arr[1];
-//   return { name, projectName };
-// }
+
 
 
 function desc(a, b, orderBy) {
@@ -73,18 +66,6 @@ const headCells = [
   { id: 'maxLength', numeric: false, disablePadding: false, label: 'maxLength' },
   ];
 
-
-function getRows()
-{
-  return new Promise((res,rej)=>
-  {
-    axios("https://mddev.mdcms.ch/mdrstt82/mdrfields?library=mdrdemod&file=custs")
-    .then(response => {
-      console.log('HER EIS THE RES',response.data);
-      res(response.data);
-    })
-  })
-}  
 
 function EnhancedTableHead(props) {
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -329,13 +310,12 @@ export default function EnhancedTable() {
                         />
                       </TableCell>
                       <TableCell component="th" id={labelId} scope="row" padding="none">
-                        {row.name}
+                        {row.field}
                       </TableCell>
-                      <TableCell align="left">{row.field}</TableCell>
                       <TableCell align="left">{row.text}</TableCell>
                       <TableCell align="left">{row.longName}</TableCell>
                       <TableCell align="left">{row.type}</TableCell>
-                      <TableCell align="left">{row.maLength}</TableCell>
+                      <TableCell align="left">{row.maxLength}</TableCell>
                     </TableRow>
                   );
                 })}
