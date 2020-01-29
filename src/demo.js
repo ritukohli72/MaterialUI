@@ -58,7 +58,7 @@ function getSorting(order, orderBy) {
 }
 
 const headCells = [
-  { id: 'id', numeric: true, disablePadding: false, label: 'ID' },
+  { id: 'id', numeric: false, disablePadding: false, label: 'ID' },
   { id: 'clidno', numeric: false, disablePadding: false, label: 'clidno' },
   { id: 'clname', numeric: false, disablePadding: false, label: 'clname' },
   { id: 'clsurname', numeric: false, disablePadding: true, label: 'clsurname' },
