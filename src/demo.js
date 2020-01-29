@@ -20,17 +20,18 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
-import $ from 'jquery'
-import axios from 'axios';
+
+
+import { useAsync } from 'react-async';
 let rows=[];
 
-$( document ).ready(function() {
-  axios("https://mddev.mdcms.ch/mdrstt82/mdrfields?library=mdrdemod&file=custs")
-  .then(response => {
-    rows=response.data;
-  })
 
-});
+const loadData = async () =>
+  await fetch("https://mddev.mdcms.ch/mdrstt82/mdrfields?library=mdrdemod&file=custs")
+    .then(res => (res.ok ? res : Promise.reject(res)))
+    .then(res => res.json()   
+    
+    )
 
 
 
@@ -61,14 +62,15 @@ function getSorting(order, orderBy) {
 const headCells = [
   { id: 'field', numeric: false, disablePadding: true, label: 'Field' },
   { id: 'text', numeric: false, disablePadding: false, label: 'Text' },
-  { id: 'longName', numeric: false, disablePadding: false, label: 'longName' },
+  { id: 'longName', numeric: false, disablePadding: false, label: 'Long Name' },
   { id: 'type', numeric: false, disablePadding: true, label: 'Type' },
-  { id: 'maxLength', numeric: false, disablePadding: false, label: 'maxLength' },
+  { id: 'maxLength', numeric: true, disablePadding: false, label: 'Max Length' },
   ];
 
 
 function EnhancedTableHead(props) {
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+  
   const createSortHandler = property => event => {
     onRequestSort(event, property);
   };
@@ -81,7 +83,7 @@ function EnhancedTableHead(props) {
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
-            inputProps={{ 'aria-label': 'select all desserts' }}
+            inputProps={{ 'aria-label': 'Select all fields' }}
           />
         </TableCell>
         {headCells.map(headCell => (
@@ -183,10 +185,10 @@ EnhancedTableToolbar.propTypes = {
 
 const useStyles = makeStyles(theme => ({
   root: {
-    width: '100%',
+    width: '80%',
   },
   paper: {
-    width: '100%',
+    width: '80%',
     marginBottom: theme.spacing(2),
   },
   table: {
@@ -206,13 +208,19 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function EnhancedTable() {
+  
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState('projectName');
+  const [orderBy, setOrderBy] = React.useState('field');
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const { data, error, isLoading } = useAsync({ promiseFn: loadData });
+  
+  rows=data;
+  if (isLoading) return "Loading..."
+  if (error) return `Something went wrong: ${error.message}`;
   
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -222,7 +230,7 @@ export default function EnhancedTable() {
 
   const handleSelectAllClick = event => {
     if (event.target.checked) {
-      const newSelecteds = rows.map(n => n.name);
+      const newSelecteds = rows.map(n => n.field);
       setSelected(newSelecteds);
       return;
     }
@@ -265,8 +273,10 @@ export default function EnhancedTable() {
   const isSelected = name => selected.indexOf(name) !== -1;
 
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
-
+ 
+  if (data)
   return (
+    <div className="container">
     <div className={classes.root}>
       <Paper className={classes.paper}>
         <EnhancedTableToolbar numSelected={selected.length} />
@@ -315,7 +325,7 @@ export default function EnhancedTable() {
                       <TableCell align="left">{row.text}</TableCell>
                       <TableCell align="left">{row.longName}</TableCell>
                       <TableCell align="left">{row.type}</TableCell>
-                      <TableCell align="left">{row.maxLength}</TableCell>
+                      <TableCell align="right">{row.maxLength}</TableCell>
                     </TableRow>
                   );
                 })}
@@ -341,6 +351,7 @@ export default function EnhancedTable() {
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Dense padding"
       />
+    </div>
     </div>
   );
 }
