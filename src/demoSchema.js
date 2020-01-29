@@ -27,9 +27,11 @@ let rows=[];
 
 
 const loadData = async () =>
-  await fetch("https://mddev.mdcms.ch/mdrdemod/CLNTAPI31")
+  await fetch("https://mddev.mdcms.ch/mdrstt82/mdrfields?library=mdrdemod&file=custs")
     .then(res => (res.ok ? res : Promise.reject(res)))
-    .then(res => res.json());
+    .then(res => res.json()   
+    
+    )
 
 
 
@@ -58,18 +60,11 @@ function getSorting(order, orderBy) {
 }
 
 const headCells = [
-  { id: 'id', numeric: true, disablePadding: false, label: 'ID' },
-  { id: 'clidno', numeric: false, disablePadding: false, label: 'clidno' },
-  { id: 'clname', numeric: false, disablePadding: false, label: 'clname' },
-  { id: 'clsurname', numeric: false, disablePadding: true, label: 'clsurname' },
-  { id: 'cltitle', numeric: false, disablePadding: false, label: 'cltitle' },
-  { id: 'clphone', numeric: false, disablePadding: true, label: 'clphone' },
-  { id: 'clemail', numeric: false, disablePadding: false, label: 'clemail' },
-  { id: 'claddr1', numeric: false, disablePadding: false, label: 'claddr1' },
-  { id: 'claddr2', numeric: false, disablePadding: true, label: 'claddr2' },
-  { id: 'claddr3', numeric: false, disablePadding: true, label: 'claddr3' },
-  { id: 'clpcode', numeric: false, disablePadding: false, label: 'clpcode' },
-  { id: 'cllang', numeric: false, disablePadding: false, label: 'cllang' },
+  { id: 'field', numeric: false, disablePadding: true, label: 'Field' },
+  { id: 'text', numeric: false, disablePadding: false, label: 'Text' },
+  { id: 'longName', numeric: false, disablePadding: false, label: 'Long Name' },
+  { id: 'type', numeric: false, disablePadding: true, label: 'Type' },
+  { id: 'maxLength', numeric: true, disablePadding: false, label: 'Max Length' },
   ];
 
 
@@ -163,7 +158,7 @@ const EnhancedTableToolbar = props => {
         </Typography>
       ) : (
         <Typography className={classes.title} variant="h6" id="tableTitle">
-          Customer Data
+          Data Fields details
         </Typography>
       )}
 
@@ -190,10 +185,10 @@ EnhancedTableToolbar.propTypes = {
 
 const useStyles = makeStyles(theme => ({
   root: {
-    width: '100%',
+    width: '80%',
   },
   paper: {
-    width: '100%',
+    width: '80%',
     marginBottom: theme.spacing(2),
   },
   table: {
@@ -216,17 +211,14 @@ export default function EnhancedTable() {
   
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState(headCells[0]["id"]);
+  const [orderBy, setOrderBy] = React.useState('field');
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const { data, error, isLoading } = useAsync({ promiseFn: loadData });
-  rows=[];
-  console.log('DTAAT',data);
-  if (data)
-  rows=data["LXCLIENT"];
   
+  rows=data;
   if (isLoading) return "Loading..."
   if (error) return `Something went wrong: ${error.message}`;
   
@@ -238,7 +230,7 @@ export default function EnhancedTable() {
 
   const handleSelectAllClick = event => {
     if (event.target.checked) {
-      const newSelecteds = rows.map(n => n[headCells[0].id]);
+      const newSelecteds = rows.map(n => n.field);
       setSelected(newSelecteds);
       return;
     }
@@ -308,17 +300,17 @@ export default function EnhancedTable() {
               {stableSort(rows, getSorting(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const isItemSelected = isSelected(row[headCells[0].id]);
+                  const isItemSelected = isSelected(row.field);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
                     <TableRow
                       hover
-                      onClick={event => handleClick(event, row[headCells[0].id])}
+                      onClick={event => handleClick(event, row.field)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row[headCells[0].id]}
+                      key={row.field}
                       selected={isItemSelected}
                     >
                       <TableCell padding="checkbox">
@@ -326,19 +318,14 @@ export default function EnhancedTable() {
                           checked={isItemSelected}
                           inputProps={{ 'aria-labelledby': labelId }}
                         />
-                                         
-                       </TableCell>
-                       {headCells.map((head,i)=>{
-                         if (i==0)
-                         return <TableCell component="th" id={labelId} scope="row" padding="none">
-                         {row[head.id]}</TableCell>
-                         else return <TableCell align="left">
-                         {row[head.id]}</TableCell>
-
-                       
-
-                       })}
-                     
+                      </TableCell>
+                      <TableCell component="th" id={labelId} scope="row" padding="none">
+                        {row.field}
+                      </TableCell>
+                      <TableCell align="left">{row.text}</TableCell>
+                      <TableCell align="left">{row.longName}</TableCell>
+                      <TableCell align="left">{row.type}</TableCell>
+                      <TableCell align="right">{row.maxLength}</TableCell>
                     </TableRow>
                   );
                 })}
