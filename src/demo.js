@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import clsx from "clsx";
 import { lighten, makeStyles } from "@material-ui/core/styles";
@@ -21,7 +21,8 @@ import Switch from "@material-ui/core/Switch";
 import DeleteIcon from "@material-ui/icons/Delete";
 import FilterListIcon from "@material-ui/icons/FilterList";
 import { useAsync } from "react-async";
-import Button from "@material-ui/core/Button";
+import {Link} from 'react-router-dom' ;
+import DetailsIcon from '@material-ui/icons/Details';
 let rows = [];
 
 const loadData = async () =>
@@ -105,6 +106,9 @@ function EnhancedTableHead(props) {
             </TableSortLabel>
           </TableCell>
         ))}
+        <TableCell>
+          <DetailsIcon/>
+        </TableCell>
       </TableRow>
     </TableHead>
   );
@@ -216,14 +220,21 @@ export default function EnhancedTable() {
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
+  const [rowsState, setRows] = React.useState([]);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
   const { data, error, isLoading } = useAsync({ promiseFn: loadData });
   rows = [];
+  
   console.log("DTAAT", data);
-
+ 
   if (data) {
+    
     if (Array.isArray(data)) rows = data;
-    else rows = Object.values(data)[0];
+     else rows = Object.values(data)[0];
+    //  setRows([1,2])
+    
+    console.log('rowsState',rowsState)
+
     let rowOne = rows[0];
     console.log("rowOne", rowOne);
     let i = 0;
@@ -298,6 +309,7 @@ export default function EnhancedTable() {
 
   if (rows)
     return (
+
       <div className="container">
         <div className={classes.root}>
           <Paper className={classes.paper}>
@@ -363,9 +375,9 @@ export default function EnhancedTable() {
                               );
                           })}
                           <TableCell>
-                          <Button variant="contained" color="primary">
-                            Detail
-                          </Button>
+                          <Link to={`/${row[headCells[0].id]}`}>
+                          <DetailsIcon/>
+                          </Link>
                           </TableCell>
                         </TableRow>
                       );
