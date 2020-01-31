@@ -1,15 +1,47 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import Demo from "./demo";
-import Detail from "./detail";
+import Detail from "./detailWW";
 import { BrowserRouter, Route } from "react-router-dom";
 
-const routes = (
-  <BrowserRouter>
-    <div>
-      <Route path="/" component={Demo} exact={true}/>
-      <Route path="/:id" component={Detail} />
-    </div>
-  </BrowserRouter>
-);
-ReactDOM.render(routes, document.querySelector("#root"));
+class App extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      records: []
+    };
+  }
+
+  componentDidMount() {
+    fetch("https://mddev.mdcms.ch/mdrdemod/CLNTAPI31")
+      .then(res => res.json())
+      .then(records => {
+        this.setState({ records: records });
+      });
+  }
+
+  render() {
+    let { records } = this.state;
+
+    return (
+      records && (
+        <BrowserRouter>
+          <div>
+            <Route
+              exact
+              path="/"
+              render={props => <Demo {...props} records={records} />}
+            />
+
+            <Route
+              path="/:id"
+              render={props => <Detail {...props} records={records} />}
+            />
+          </div>
+        </BrowserRouter>
+      )
+    );
+  }
+}
+
+ReactDOM.render(<App />, document.querySelector("#root"));

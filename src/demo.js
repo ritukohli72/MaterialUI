@@ -22,13 +22,14 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import FilterListIcon from "@material-ui/icons/FilterList";
 import { useAsync } from "react-async";
 import {Link} from 'react-router-dom' ;
+import Button from "@material-ui/core/Button";
 import DetailsIcon from '@material-ui/icons/Details';
 let rows = [];
 
-const loadData = async () =>
-  await fetch("https://mddev.mdcms.ch/mdrdemod/CLNTAPI31")
-    .then(res => (res.ok ? res : Promise.reject(res)))
-    .then(res => res.json());
+// const loadData = async () =>
+//   await fetch("https://mddev.mdcms.ch/mdrdemod/CLNTAPI31")
+//     .then(res => (res.ok ? res : Promise.reject(res)))
+//     .then(res => res.json());
 
 function desc(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -73,7 +74,7 @@ function EnhancedTableHead(props) {
   const createSortHandler = property => event => {
     onRequestSort(event, property);
   };
-
+ headCells=props.headCells;
   return (
     <TableHead>
       <TableRow>
@@ -107,7 +108,7 @@ function EnhancedTableHead(props) {
           </TableCell>
         ))}
         <TableCell>
-          <DetailsIcon/>
+         Options
         </TableCell>
       </TableRow>
     </TableHead>
@@ -121,7 +122,7 @@ EnhancedTableHead.propTypes = {
   onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.oneOf(["asc", "desc"]).isRequired,
   orderBy: PropTypes.string.isRequired,
-  rowCount: PropTypes.number.isRequired
+  rowCount: PropTypes.number.isRequired,
 };
 
 const useToolbarStyles = makeStyles(theme => ({
@@ -210,10 +211,24 @@ const useStyles = makeStyles(theme => ({
     position: "absolute",
     top: 20,
     width: 1
-  }
+  },
+  typography: {
+    fontFamily: [
+      '-apple-system',
+      'BlinkMacSystemFont',
+      '"Segoe UI"',
+      'Roboto',
+      '"Helvetica Neue"',
+      'Arial',
+      'sans-serif',
+      '"Apple Color Emoji"',
+      '"Segoe UI Emoji"',
+      '"Segoe UI Symbol"',
+    ].join(','),
+  },
 }));
 
-export default function EnhancedTable() {
+export default function EnhancedTable(props) {
   const classes = useStyles();
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState(headCells[0]["id"]);
@@ -222,16 +237,18 @@ export default function EnhancedTable() {
   const [dense, setDense] = React.useState(false);
   const [rowsState, setRows] = React.useState([]);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
-  const { data, error, isLoading } = useAsync({ promiseFn: loadData });
-  rows = [];
+  // const { data, error, isLoading } = useAsync({ promiseFn: loadData });
   
+  
+  // console.log("DTAAT", data);
+  let data=props.records;
   console.log("DTAAT", data);
+  if (Array.isArray(data)) rows = data;
+  else rows = Object.values(data)[0];
  
-  if (data) {
+  if (rows.length>0) {
     
-    if (Array.isArray(data)) rows = data;
-     else rows = Object.values(data)[0];
-    //  setRows([1,2])
+   
     
     console.log('rowsState',rowsState)
 
@@ -251,8 +268,8 @@ export default function EnhancedTable() {
     console.log("HEADCELLS", headCells);
   }
 
-  if (isLoading) return "Loading...";
-  if (error) return `Something went wrong: ${error.message}`;
+  // if (isLoading) return "Loading...";
+  // if (error) return `Something went wrong: ${error.message}`;
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -307,7 +324,7 @@ export default function EnhancedTable() {
   const emptyRows =
     rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
-  if (rows)
+  if (rows.length>0)
     return (
 
       <div className="container">
@@ -329,6 +346,7 @@ export default function EnhancedTable() {
                   onSelectAllClick={handleSelectAllClick}
                   onRequestSort={handleRequestSort}
                   rowCount={rows.length}
+                  headCells={headCells}
                 />
                 <TableBody>
                   {stableSort(rows, getSorting(order, orderBy))
@@ -375,9 +393,12 @@ export default function EnhancedTable() {
                               );
                           })}
                           <TableCell>
-                          <Link to={`/${row[headCells[0].id]}`}>
-                          <DetailsIcon/>
+                          <Button variant="contained">
+                          <Link to={{pathname: `/${row[headCells[0].id]}`,
+                                     record:row}}>
+                           View
                           </Link>
+                          </Button>
                           </TableCell>
                         </TableRow>
                       );
@@ -406,5 +427,8 @@ export default function EnhancedTable() {
           />
         </div>
       </div>
-    );
+    )
+    else
+    return(<div>Loading...</div>);
 }
+ 
