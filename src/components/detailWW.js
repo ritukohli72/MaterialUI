@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState,useEffect } from "react";
 import PropTypes from "prop-types";
 import clsx from "clsx";
 import { lighten, makeStyles, createMuiTheme } from "@material-ui/core/styles";
@@ -65,33 +65,50 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function EnhancedTable(props) {
-  let records = [];
   
-  id = props.match.params.id;
+  
   const classes = useStyles();
   const [dense, setDense] = React.useState(false);
-  const { data, error, isLoading } = useAsync({ promiseFn: loadData });
+  const [record,setRecord] = useState({})
+  // const { data, error, isLoading } = useAsync({ promiseFn: loadData });
   const theme = useTheme(); 
-  console.log('THEME',theme)
-  
-  if (isLoading) return "Loading..."
-  if (error) return `Something went wrong: ${error.message}`;
+  console.log('THEME',theme);
+  let records = [];
 
-  let record=data;
-  
+  let rec=props.location.record;
+  console.log('RECORD PARU',props)
  
-  
-  
+   
+  console.log('record',record)
+  id = props.match.params.id;
+  let heading=props.match.params.type+' '+'Info'
+  useEffect(() => {
+
+    if (!rec)
+   fetch(`https://mddev.mdcms.ch/mdrdemod/CLNTAPI31?id=${id}`)
+      .then(res => res.json())
+      .then(row => {
+        setRecord(row);
+      });
+      else
+      setRecord(rec);
+ 
+  });
+
+  // if (isLoading) return "Loading..."
+  // if (error) return `Something went wrong: ${error.message}`;
+
+  // let record=data;if (record)
+  if (record)
+  {
   let rows=[];
   for (let x in record) rows.push({ label: x, value: record[x] });
-  if (rows.length > 0) {
+  
     const handleChangeDense = event => {
       setDense(event.target.checked);
     };
-
-    if (rows.length > 0)
-      return (
-        
+     return(
+   
         <Container style={{ marginTop: "100px" }}>
           <div className={classes.root}>
             <Paper className={classes.paper}>
@@ -111,7 +128,7 @@ export default function EnhancedTable(props) {
                           id="tableTitle"
                           style={{ marginBottom: "10px", padding: "5px" }}
                         >
-                          Customer Info
+                          {heading}
                         </Typography>
                       </TableCell>
                       <TableCell></TableCell>
@@ -122,7 +139,7 @@ export default function EnhancedTable(props) {
                           {" "}
                           {row.label}{" "}
                         </TableCell>
-                        <TableCell align="center"> {row.value} </TableCell>
+                        <TableCell align="left"> {row.value} </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -135,9 +152,11 @@ export default function EnhancedTable(props) {
               <Button variant="contained">Back</Button>
             </Link>
           </div>
-        </Container>
-       
-      );
-    else return <div>Sorry...</div>;
+        </Container>);
   }
+  else
+  return (<div>Loading</div>)     
+      
+  
+  
 }

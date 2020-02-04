@@ -30,7 +30,7 @@ let rows = [];
 //   await fetch("https://mddev.mdcms.ch/mdrdemod/CLNTAPI31")
 //     .then(res => (res.ok ? res : Promise.reject(res)))
 //     .then(res => res.json());
-
+let heading=''
 function desc(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -165,7 +165,7 @@ const EnhancedTableToolbar = props => {
         </Typography>
       ) : (
         <Typography className={classes.title} variant="h6" id="tableTitle">
-          Customer Data
+         {heading}
         </Typography>
       )}
 
@@ -199,7 +199,8 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(2)
   },
   table: {
-    minWidth: 750
+    minWidth: 750,
+    // marginLeft: "200px"
   },
   visuallyHidden: {
     border: 0,
@@ -241,14 +242,15 @@ export default function EnhancedTable(props) {
   
   
   // console.log("DTAAT", data);
+  console.log('PROPS DEKHO',props);
+  heading=props.heading;
   let data=props.records;
   console.log("DTAAT", data);
   if (Array.isArray(data)) rows = data;
   else rows = Object.values(data)[0];
  
   if (rows.length>0) {
-    
-   
+
     
     console.log('rowsState',rowsState)
 
@@ -394,7 +396,7 @@ export default function EnhancedTable(props) {
                           })}
                           <TableCell>
                           <Button variant="contained">
-                          <Link to={{pathname: `/${row[headCells[0].id]}`,
+                          <Link to={{pathname: `/${props.type}/${row[headCells[0].id]}`,
                                      record:row}}>
                            View
                           </Link>
